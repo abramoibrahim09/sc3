@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Classifica Scommesse Classe</title>
+</head>
+<body>
+<h2>Classifica Scommesse Classe</h2>
+<table border="1">
+<tr>
+<th>Partecipante</th>
+<th>Punti</th>
+</tr>
+{% for p, d in data.items() %}
+<tr>
+<td>{{ p }}</td>
+<td>{{ d['punti'] }}</td>
+</tr>
+{% endfor %}
+</table>
+</body>
+</html>
