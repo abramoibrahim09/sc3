@@ -1,13 +1,7 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>Admin - Scommesse Classe</title>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
 <h2>Benvenuto {{ user }} (Admin)</h2>
 <h3>Classifica</h3>
-<table border="1">
+<table border="1" style="width:100%;max-width:900px">
 <tr>
 <th>Partecipante</th>
 <th>Punti</th>
@@ -18,11 +12,12 @@
 <td>{{ p }}</td>
 <td id="punti-{{ p }}">{{ d['punti'] }}</td>
 <td>
-{% for cat in categorie %}
-<button onclick="aggiorna('{{ p }}','{{ cat }}', {{ categorie[cat] }})">+{{ categorie[cat] }}</button>
-<button onclick="aggiorna('{{ p }}','{{ cat }}', -{{ categorie[cat] }})">-{{ categorie[cat] }}</button>
+{% for cat, val in categorie.items() %}
+<button onclick="aggiorna('{{ p }}','{{ cat }}', {{ val }})">+{{ val }} {{ cat }}</button>
+<button onclick="aggiorna('{{ p }}','{{ cat }}', -{{ val }})">-{{ val }} {{ cat }}</button>
 {% endfor %}
-<input type="number" id="manual-{{ p }}" placeholder="Altro punti">
+<br>
+<input type="number" id="manual-{{ p }}" placeholder="Altro punti" style="width:120px">
 <button onclick="manual('{{ p }}')">Aggiorna</button>
 </td>
 </tr>
@@ -35,8 +30,10 @@ function aggiorna(partecipante, categoria, punti) {
 $.post("/update_points", {partecipante: partecipante, categoria: categoria, punti: punti}, function(data){
 if(data.status=='success') {
 $('#punti-'+partecipante).text(data.punti);
+} else {
+alert('Errore: ' + (data.message || 'errore sconosciuto'));
 }
-});
+}).fail(function(xhr){ alert('Errore server'); });
 }
 
 
@@ -47,8 +44,10 @@ $.post("/update_points", {partecipante: partecipante, categoria: 'MANUALE', punt
 if(data.status=='success') {
 $('#punti-'+partecipante).text(data.punti);
 $('#manual-'+partecipante).val('');
+} else {
+alert('Errore: ' + (data.message || 'errore'));
 }
-});
+}).fail(function(){ alert('Errore server'); });
 }
 }
 </script>
