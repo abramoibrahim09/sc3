@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin - Scommesse Classe</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h2>Benvenuto {{ user }} (Admin)</h2>
+<h3>Classifica</h3>
+<table border="1">
+<tr>
+<th>Partecipante</th>
+<th>Punti</th>
+<th>Azione</th>
+</tr>
+{% for p, d in data.items() %}
+<tr>
+<td>{{ p }}</td>
+<td id="punti-{{ p }}">{{ d['punti'] }}</td>
+<td>
+{% for cat in categorie %}
+<button onclick="aggiorna('{{ p }}','{{ cat }}', {{ categorie[cat] }})">+{{ categorie[cat] }}</button>
+<button onclick="aggiorna('{{ p }}','{{ cat }}', -{{ categorie[cat] }})">-{{ categorie[cat] }}</button>
+{% endfor %}
+<input type="number" id="manual-{{ p }}" placeholder="Altro punti">
+<button onclick="manual('{{ p }}')">Aggiorna</button>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+
+<script>
+function aggiorna(partecipante, categoria, punti) {
+$.post("/update_points", {partecipante: partecipante, categoria: categoria, punti: punti}, function(data){
+if(data.status=='success') {
+$('#punti-'+partecipante).text(data.punti);
+}
+});
+}
+
+
+function manual(partecipante) {
+var punti = parseInt($('#manual-'+partecipante).val());
+if(!isNaN(punti)) {
+$.post("/update_points", {partecipante: partecipante, categoria: 'MANUALE', punti: punti}, function(data){
+if(data.status=='success') {
+$('#punti-'+partecipante).text(data.punti);
+$('#manual-'+partecipante).val('');
+}
+});
+}
+}
+</script>
+
+
+<br><a href="/export_csv">Esporta CSV</a>
+</body>
+</html>
