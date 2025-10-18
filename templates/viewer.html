@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Classifica Scommesse Classe</title>
+    <meta charset="UTF-8">
+    <title>Classifica Scommesse di Classe</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 90%; max-width: 800px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
 </head>
 <body>
-<h2>Classifica Scommesse Classe</h2>
-<table border="1" style="width:100%;max-width:600px">
-<tr>
-<th>Partecipante</th>
-<th>Punti</th>
-</tr>
-{% for p, d in data.items() %}
-<tr>
+    <h2>Classifica</h2>
+    <table>
+        <tr>
+            <th>Partecipante</th>
+            <th>Punti</th>
+        </tr>
+        {% for p, d in data.items() %}
+        <tr>
+            <td>{{ p }}</td>
+            <td>{{ d['punti'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
