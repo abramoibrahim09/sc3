@@ -1,51 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Scommesse di Classe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Scommesse Classe</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 90%; max-width: 800px; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        button { margin: 2px; padding: 6px 10px; cursor: pointer; border-radius: 5px; }
-        .category-btn { background-color: #4CAF50; color: white; border: none; }
-        .manual-btn { background-color: #2196F3; color: white; border: none; }
-        input[type=number], input[type=text] { padding: 5px; width: 80px; }
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f0f0; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #ddd; }
+        button { padding: 5px 10px; margin: 2px; }
+        input { width: 50px; }
+        .categoria { font-weight: bold; }
     </style>
 </head>
 <body>
-    <h2>Benvenuto, {{ user }} (Admin)</h2>
-    <h3>Classifica attuale</h3>
+    <h1>Benvenuto, {{ user }} (Admin)</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+    <h2>Classifica</h2>
     <table>
         <tr>
             <th>Partecipante</th>
             <th>Punti</th>
-            <th>Azioni</th>
         </tr>
-        {% for p, d in data.items() %}
+        {% for p, info in data.items() %}
         <tr>
             <td>{{ p }}</td>
-            <td id="punti-{{ p }}">{{ d['punti'] }}</td>
-            <td>
-                {% for cat, val in categorie.items() %}
-                <form method="post" action="{{ url_for('update_points') }}" style="display:inline;">
-                    <input type="hidden" name="partecipante" value="{{ p }}">
-                    <input type="hidden" name="categoria" value="{{ cat }}">
-                    <input type="hidden" name="punti" value="{{ val }}">
-                    <button class="category-btn" type="submit">{{ cat }} (+{{ val }})</button>
-                </form>
-                {% endfor %}
-                <form method="post" action="{{ url_for('update_points') }}" style="display:inline;">
-                    <input type="hidden" name="partecipante" value="{{ p }}">
-                    <input type="number" name="punti" placeholder="Punti" required>
-                    <input type="text" name="categoria" placeholder="Categoria" required>
-                    <button class="manual-btn" type="submit">Aggiungi</button>
-                </form>
-            </td>
+            <td>{{ info.punti }}</td>
         </tr>
         {% endfor %}
     </table>
-    <p style="margin-top:20px;"><a href="{{ url_for('export_csv') }}">Esporta CSV</a></p>
+
+    <h2>Aggiorna punti</h2>
+    {% for categoria, default_punti in categorie.items() %}
+        <div>
+            <span class="categoria">{{ categoria }} ({{ default_punti }} punti)</span>
+            <form action="{{ url_for('update_points') }}" method="POST" style="display:inline-block;">
+                <select name="partecipante" required>
+                    {% for p in data.keys() %}
+                        <option value="{{ p }}">{{ p }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="punti" value="{{ default_punti }}" required>
+                <input type="hidden" name="categoria" value="{{ categoria }}">
+                <button type="submit">Aggiorna</button>
+            </form>
+        </div>
+    {% endfor %}
+
+    <h2>Esporta classifica CSV</h2>
+    <a href="{{ url_for('export_csv') }}"><button>Esporta CSV</button></a>
 </body>
 </html>
