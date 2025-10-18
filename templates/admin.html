@@ -1,55 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Scommesse Classe</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f0f0; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        th { background-color: #ddd; }
-        button { padding: 5px 10px; margin: 2px; }
-        input { width: 50px; }
-        .categoria { font-weight: bold; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin - Scommesse</title>
+  <style>
+    body{font-family:Arial;margin:16px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #ddd;padding:8px;text-align:center}
+    th{background:#f2f2f2}
+    .row-actions form{display:inline-block;margin:2px}
+    select,input[type=number]{padding:6px}
+    button{padding:6px 8px}
+  </style>
 </head>
 <body>
-    <h1>Benvenuto, {{ user }} (Admin)</h1>
-    <a href="{{ url_for('logout') }}">Logout</a>
+  <h1>Admin: {{ user }}</h1>
+  <p><a href="{{ url_for('logout') }}">Logout</a> | <a href="{{ url_for('export_csv') }}">Esporta CSV</a></p>
 
-    <h2>Classifica</h2>
-    <table>
-        <tr>
-            <th>Partecipante</th>
-            <th>Punti</th>
-        </tr>
-        {% for p, info in data.items() %}
-        <tr>
-            <td>{{ p }}</td>
-            <td>{{ info.punti }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <h2>Aggiorna punti</h2>
-    {% for categoria, default_punti in categorie.items() %}
-        <div>
-            <span class="categoria">{{ categoria }} ({{ default_punti }} punti)</span>
-            <form action="{{ url_for('update_points') }}" method="POST" style="display:inline-block;">
-                <select name="partecipante" required>
-                    {% for p in data.keys() %}
-                        <option value="{{ p }}">{{ p }}</option>
-                    {% endfor %}
-                </select>
-                <input type="number" name="punti" value="{{ default_punti }}" required>
-                <input type="hidden" name="categoria" value="{{ categoria }}">
-                <button type="submit">Aggiorna</button>
-            </form>
-        </div>
+  <h2>Classifica</h2>
+  <table>
+    <tr><th>Partecipante</th><th>Punti</th></tr>
+    {% for p, info in data.items() %}
+      <tr><td>{{ p }}</td><td>{{ info.punti }}</td></tr>
     {% endfor %}
+  </table>
 
-    <h2>Esporta classifica CSV</h2>
-    <a href="{{ url_for('export_csv') }}"><button>Esporta CSV</button></a>
-</body>
-</html>
+  <h2>Aggiorna punti</h2>
+  {% for cat, val in categorie.items() %}
+    <div style="margin-bottom:8px">
+      <strong>{{ cat }} ({{ val }})</strong>
+      <form method="post" action="{{ url_for('admin_page') }}" style="display:inline-block;margin-left:10px">
+        <select name="partecipante" required>
+          {% for p in data.keys() %}
+            <option value="{{ p }}">{{ p }}</option>
+          {% endfor %}
+        </select>
+        <input type="number" name="punti" value="{{ val }}" required>
+        <input type="hidden" name="categoria" value="{{ cat }}">
+        <button type="submit">Applica</button>
+      </form>
+    </div>
