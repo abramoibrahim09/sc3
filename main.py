@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import os, json
+import json, os
 
 app = Flask(__name__)
-app.secret_key = "cambia_questa_chiave_con_qualcosa_di_sicuro"
+app.secret_key = "cambia_questa_chiave"
 
 PARTECIPANTI = [
     "Abramo", "Edoardo", "Alex", "Bianchi", "Vittorio",
@@ -10,23 +10,19 @@ PARTECIPANTI = [
     "Lovato", "Mosconi", "Roman"
 ]
 
-# password admin
 ADMIN_PASSWORDS = {
-    "abramo": "abramo208",
-    "edoardo": "edoardo104",
-    "edo": "edoardo104"
+    "Abramo": "abramo208",
+    "Edoardo": "edoardo104"
 }
 
 DATA_FILE = "data.json"
 
-def ensure_data():
-    if not os.path.exists(DATA_FILE):
-        data = {p: {"punti": 0} for p in PARTECIPANTI}
-        with open(DATA_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+# inizializza dati se non esistono
+if not os.path.exists(DATA_FILE):
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump({p: {"punti":0} for p in PARTECIPANTI}, f, ensure_ascii=False, indent=2)
 
 def load_data():
-    ensure_data()
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -34,54 +30,38 @@ def save_data(data):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-ensure_data()
-
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET","POST"])
 def login():
     error = None
     if request.method == "POST":
-        username_input = (request.form.get("username") or "").strip()
-        password_input = (request.form.get("password") or "").strip()
-        username_lower = username_input.lower()
-
-        # DEBUG: stampa chi prova a fare login
-        print(f"[DEBUG] Login attempt: {username_input}, password: {password_input}")
+        username = request.form.get("username","").strip()
+        password = request.form.get("password","").strip()
 
         # controllo admin
-        if username_lower in ADMIN_PASSWORDS and password_input == ADMIN_PASSWORDS[username_lower]:
-            canonical = "Edoardo" if username_lower.startswith("edo") else "Abramo"
-            session["user"] = canonical
+        if username in ADMIN_PASSWORDS and password == ADMIN_PASSWORDS[username]:
+            session["user"] = username
             session["is_admin"] = True
-            print(f"[DEBUG] Admin login riuscito: {canonical}")
             return redirect(url_for("admin_page"))
 
-        # controllo partecipante viewer
-        for p in PARTECIPANTI:
-            if username_lower == p.lower():
-                session["user"] = p
-                session["is_admin"] = False
-                print(f"[DEBUG] Viewer login: {p}")
-                return redirect(url_for("viewer_page"))
+        # controllo viewer
+        if username in PARTECIPANTI:
+            session["user"] = username
+            session["is_admin"] = False
+            return redirect(url_for("viewer_page"))
 
         error = "Nome o password non validi"
-        print(f"[DEBUG] Login fallito per: {username_input}")
 
     return render_template("login.html", error=error)
 
-@app.route("/admin", methods=["GET", "POST"])
+@app.route("/admin", methods=["GET","POST"])
 def admin_page():
-    if "user" not in session or not session.get("is_admin"):
+    if "user" not in session or not session.get("is_admin", False):
         return redirect(url_for("login"))
 
     data = load_data()
-
     if request.method == "POST":
         partecipante = request.form.get("partecipante")
-        punti_raw = request.form.get("punti", "0")
-        try:
-            punti = int(punti_raw)
-        except:
-            punti = 0
+        punti = int(request.form.get("punti","0"))
         if partecipante in data:
             data[partecipante]["punti"] += punti
             save_data(data)
@@ -93,6 +73,7 @@ def admin_page():
 def viewer_page():
     if "user" not in session:
         return redirect(url_for("login"))
+
     data = load_data()
     return render_template("viewer.html", user=session["user"], data=data)
 
@@ -102,4 +83,4 @@ def logout():
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
