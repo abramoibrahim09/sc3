@@ -1,58 +1,51 @@
 <!DOCTYPE html>
-<h2>Benvenuto {{ user }} (Admin)</h2>
-<h3>Classifica</h3>
-<table border="1" style="width:100%;max-width:900px">
-<tr>
-<th>Partecipante</th>
-<th>Punti</th>
-<th>Azione</th>
-</tr>
-{% for p, d in data.items() %}
-<tr>
-<td>{{ p }}</td>
-<td id="punti-{{ p }}">{{ d['punti'] }}</td>
-<td>
-{% for cat, val in categorie.items() %}
-<button onclick="aggiorna('{{ p }}','{{ cat }}', {{ val }})">+{{ val }} {{ cat }}</button>
-<button onclick="aggiorna('{{ p }}','{{ cat }}', -{{ val }})">-{{ val }} {{ cat }}</button>
-{% endfor %}
-<br>
-<input type="number" id="manual-{{ p }}" placeholder="Altro punti" style="width:120px">
-<button onclick="manual('{{ p }}')">Aggiorna</button>
-</td>
-</tr>
-{% endfor %}
-</table>
-
-
-<script>
-function aggiorna(partecipante, categoria, punti) {
-$.post("/update_points", {partecipante: partecipante, categoria: categoria, punti: punti}, function(data){
-if(data.status=='success') {
-$('#punti-'+partecipante).text(data.punti);
-} else {
-alert('Errore: ' + (data.message || 'errore sconosciuto'));
-}
-}).fail(function(xhr){ alert('Errore server'); });
-}
-
-
-function manual(partecipante) {
-var punti = parseInt($('#manual-'+partecipante).val());
-if(!isNaN(punti)) {
-$.post("/update_points", {partecipante: partecipante, categoria: 'MANUALE', punti: punti}, function(data){
-if(data.status=='success') {
-$('#punti-'+partecipante).text(data.punti);
-$('#manual-'+partecipante).val('');
-} else {
-alert('Errore: ' + (data.message || 'errore'));
-}
-}).fail(function(){ alert('Errore server'); });
-}
-}
-</script>
-
-
-<br><a href="/export_csv">Esporta CSV</a>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Scommesse di Classe</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 90%; max-width: 800px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        button { margin: 2px; padding: 6px 10px; cursor: pointer; border-radius: 5px; }
+        .category-btn { background-color: #4CAF50; color: white; border: none; }
+        .manual-btn { background-color: #2196F3; color: white; border: none; }
+        input[type=number], input[type=text] { padding: 5px; width: 80px; }
+    </style>
+</head>
+<body>
+    <h2>Benvenuto, {{ user }} (Admin)</h2>
+    <h3>Classifica attuale</h3>
+    <table>
+        <tr>
+            <th>Partecipante</th>
+            <th>Punti</th>
+            <th>Azioni</th>
+        </tr>
+        {% for p, d in data.items() %}
+        <tr>
+            <td>{{ p }}</td>
+            <td id="punti-{{ p }}">{{ d['punti'] }}</td>
+            <td>
+                {% for cat, val in categorie.items() %}
+                <form method="post" action="{{ url_for('update_points') }}" style="display:inline;">
+                    <input type="hidden" name="partecipante" value="{{ p }}">
+                    <input type="hidden" name="categoria" value="{{ cat }}">
+                    <input type="hidden" name="punti" value="{{ val }}">
+                    <button class="category-btn" type="submit">{{ cat }} (+{{ val }})</button>
+                </form>
+                {% endfor %}
+                <form method="post" action="{{ url_for('update_points') }}" style="display:inline;">
+                    <input type="hidden" name="partecipante" value="{{ p }}">
+                    <input type="number" name="punti" placeholder="Punti" required>
+                    <input type="text" name="categoria" placeholder="Categoria" required>
+                    <button class="manual-btn" type="submit">Aggiungi</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p style="margin-top:20px;"><a href="{{ url_for('export_csv') }}">Esporta CSV</a></p>
 </body>
 </html>
