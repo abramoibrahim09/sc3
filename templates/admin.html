@@ -1,43 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin - Scommesse</title>
-  <style>
-    body{font-family:Arial;margin:16px}
-    table{width:100%;border-collapse:collapse}
-    th,td{border:1px solid #ddd;padding:8px;text-align:center}
-    th{background:#f2f2f2}
-    .row-actions form{display:inline-block;margin:2px}
-    select,input[type=number]{padding:6px}
-    button{padding:6px 8px}
-  </style>
+    <meta charset="UTF-8">
+    <title>Admin - Scommesse di Classe</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin:20px; background:#f8f8f8; }
+        table { border-collapse: collapse; width:100%; margin-top:20px; }
+        th, td { border:1px solid #ccc; padding:8px; text-align:center; }
+        th { background:#007BFF; color:white; }
+        input { width:60px; }
+        button { padding:5px 10px; margin-left:5px; }
+        .logout { float:right; }
+    </style>
 </head>
 <body>
-  <h1>Admin: {{ user }}</h1>
-  <p><a href="{{ url_for('logout') }}">Logout</a> | <a href="{{ url_for('export_csv') }}">Esporta CSV</a></p>
+    <h1>Benvenuto Admin: {{ user }}</h1>
+    <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+    <form method="post">
+        <label>Partecipante:
+            <select name="partecipante">
+                {% for p in data.keys() %}
+                <option value="{{ p }}">{{ p }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Punti:
+            <input type="number" name="punti" value="0">
+        </label>
+        <button type="submit">Aggiorna punti</button>
+    </form>
 
-  <h2>Classifica</h2>
-  <table>
-    <tr><th>Partecipante</th><th>Punti</th></tr>
-    {% for p, info in data.items() %}
-      <tr><td>{{ p }}</td><td>{{ info.punti }}</td></tr>
-    {% endfor %}
-  </table>
-
-  <h2>Aggiorna punti</h2>
-  {% for cat, val in categorie.items() %}
-    <div style="margin-bottom:8px">
-      <strong>{{ cat }} ({{ val }})</strong>
-      <form method="post" action="{{ url_for('admin_page') }}" style="display:inline-block;margin-left:10px">
-        <select name="partecipante" required>
-          {% for p in data.keys() %}
-            <option value="{{ p }}">{{ p }}</option>
-          {% endfor %}
-        </select>
-        <input type="number" name="punti" value="{{ val }}" required>
-        <input type="hidden" name="categoria" value="{{ cat }}">
-        <button type="submit">Applica</button>
-      </form>
-    </div>
+    <table>
+        <tr>
+            <th>Partecipante</th>
+            <th>Punti</th>
+        </tr>
+        {% for p, info in data.items() %}
+        <tr>
+            <td>{{ p }}</td>
+            <td>{{ info.punti }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
