@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <title>Login - Scommesse</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body{font-family:Arial;margin:20px}
-    .box{max-width:360px;margin:40px auto;padding:20px;border-radius:8px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
-    input{width:100%;padding:10px;margin:6px 0}
-    button{width:100%;padding:10px}
-    .error{color:red}
-  </style>
+    <meta charset="UTF-8">
+    <title>Login Scommesse di Classe</title>
+    <style>
+        body { font-family: Arial, sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; background:#f0f0f0; }
+        .login-container { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.2); }
+        input { padding:10px; margin:5px 0; width:100%; box-sizing:border-box; }
+        button { padding:10px; width:100%; background:#007BFF; color:#fff; border:none; cursor:pointer; border-radius:4px; }
+        button:hover { background:#0056b3; }
+        .error { color:red; }
+    </style>
 </head>
 <body>
-  <div class="box">
+<div class="login-container">
     <h2>Login</h2>
-    {% if error %}<p class="error">{{ error }}</p>{% endif %}
-    <form method="post" action="{{ url_for('login') }}">
-      <input name="username" placeholder="Nome (es. Abramo)" required>
-      <input name="password" type="password" placeholder="Password (solo admin)">
-      <button type="submit">Accedi</button>
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        <input type="text" name="username" placeholder="Nome" required>
+        <input type="password" name="password" placeholder="Password (solo admin)">
+        <button type="submit">Accedi</button>
     </form>
-    <p style="font-size:0.9em;margin-top:10px">Admin: Abramo, Edoardo (inserire la password). Altri: inserire solo il nome.</p>
-  </div>
+</div>
 </body>
 </html>
